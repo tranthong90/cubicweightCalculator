@@ -4,3 +4,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      - SOURCE_URL=${SOURCE_URL}
+      - CATEGORY=${CATEGORY}

@@ -3,12 +3,13 @@ package calculating
 import (
 	"encoding/json"
 	"net/http"
+	"net/url"
 )
 
 //Calculator calculate average cubic weight
 type Calculator struct {
 	APIClient *APIClient
-	BaseURL   string
+	BaseURL   *url.URL
 }
 
 type apiResponse struct {
@@ -38,9 +39,9 @@ func (ps productSize) GetCubicSize() float32 {
 }
 
 //CalculateAvgCubicWeight calculate avg cubic weight
-func (c Calculator) CalculateAvgCubicWeight(sourceURL, category string) (float32, error) {
+func (c Calculator) CalculateAvgCubicWeight(urlPath, category string) (float32, error) {
 	var products []product
-	next := sourceURL
+	next := urlPath
 	var err error
 	var prds []product
 	for {
@@ -56,8 +57,10 @@ func (c Calculator) CalculateAvgCubicWeight(sourceURL, category string) (float32
 	return getAvgCubicWeight(products), nil
 }
 
-func (c Calculator) getProducts(sourceURL, category string) (nextURL string, products []product, err error) {
-	req, err := http.NewRequest("GET", c.BaseURL+sourceURL, nil)
+func (c Calculator) getProducts(urlPath, category string) (nextURL string, products []product, err error) {
+	c.BaseURL.Path = urlPath
+
+	req, err := http.NewRequest("GET", c.BaseURL.String(), nil)
 	if err != nil {
 		return "", []product{}, err
 	}

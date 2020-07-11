@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"testing"
 )
 
@@ -117,9 +118,13 @@ func TestCalculateAvgCubicWeight(t *testing.T) {
 		},
 	}
 
+	url, err := url.Parse("http://localhost/testURL")
+	if err != nil {
+		t.Errorf("Error while parsing the URL %+v", err)
+	}
 	calculator := Calculator{
 		APIClient: &client,
-		BaseURL:   "http://localhost",
+		BaseURL:   url,
 	}
 
 	want := ((float32(26*26*5) / 1000000 * 250) + (float32(49.6*38.7*89) / 1000000 * 250) + (float32(49.6*38.7*50) / 1000000 * 250)) / 3

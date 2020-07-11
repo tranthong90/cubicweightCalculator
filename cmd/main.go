@@ -4,25 +4,42 @@ import (
 	"cubic-calculator/pkg/calculating"
 	"fmt"
 	"log"
+	"net/url"
+	"os"
 )
 
 const (
-	FirstURL = "/api/products/1"
+	//SourceURL is the default source URL
+	SourceURL = "http://wp8m3he1wt.s3-website-ap-southeast-2.amazonaws.com/api/products/1"
+	//Category is the default category
 	Category = "Air Conditioners"
-	BaseURL  = "http://wp8m3he1wt.s3-website-ap-southeast-2.amazonaws.com"
 )
 
 func main() {
+	urlArg := os.Getenv("SOURCE_URL")
+	if urlArg == "" {
+		urlArg = SourceURL
+	}
+
+	categoryArg := os.Getenv("CATEGORY")
+	if categoryArg == "" {
+		categoryArg = Category
+	}
+
+	u, err := url.Parse(urlArg)
+	if err != nil {
+		log.Fatalf("Invalid URL %+v", err)
+	}
 
 	calculator := calculating.Calculator{
 		APIClient: calculating.NewClient(),
-		BaseURL:   BaseURL,
+		BaseURL:   u,
 	}
 
-	avgCubicWeight, err := calculator.CalculateAvgCubicWeight(FirstURL, Category)
+	avgCubicWeight, err := calculator.CalculateAvgCubicWeight(u.Path, categoryArg)
 	if err != nil {
 		log.Fatalf("cannot get avg cubic weight %+v", err)
 	}
 
-	fmt.Printf("The Average Cubic Weight for %s is %f", Category, avgCubicWeight)
+	fmt.Printf("The Average Cubic Weight for %s is %f kg", categoryArg, avgCubicWeight)
 }
